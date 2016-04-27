@@ -72,7 +72,7 @@ module Nanobase
     # If manifest includes the parameter name, it is safe to access paramter
     # via #[] and #<name> methods.
     #
-    def includes?(name)
+    def include?(name)
       @manifest.key?(name.to_sym)
     end
 
@@ -81,12 +81,12 @@ module Nanobase
     # @param key [String,Symbol] parameter name
     #
     def [](key)
-      raise ArgumentError, "Undefined parameter '#{key}'" unless includes?(key)
+      raise ArgumentError, "Undefined parameter '#{key}'" unless include?(key)
       @params[key.to_sym]
     end
 
     def respond_to_missing?(name, *)
-      includes?(name) || super
+      include?(name) || super
     end
 
     # def respond_to?(name, *)
@@ -94,7 +94,7 @@ module Nanobase
     # end
 
     def method_missing(name, *)
-      return self[name] if includes?(name)
+      return self[name] if include?(name)
       puts "Not a declared parameter: #{name}"
       super
     end
