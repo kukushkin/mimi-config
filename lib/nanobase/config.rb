@@ -9,7 +9,7 @@ module Nanobase
   # @see README.md
   #
   class Config
-    # Current set of values for configurable parameters
+    # Current set of values for configurable and const parameters
     attr_reader :params
 
     DEFAULT_OPTS = {
@@ -67,17 +67,26 @@ module Nanobase
       end
     end
 
+    # Returns true if the config manifest includes the parameter with the given name.
+    #
+    # If manifest includes the parameter name, it is safe to access paramter
+    # via #[] and #<name> methods.
+    #
+    def includes?(name)
+      @manifest.key?(name.to_sym)
+    end
+
     # Returns the parameter value
     #
     # @param key [String,Symbol] parameter name
     #
     def [](key)
-      raise ArgumentError, "Undefined parameter '#{key}'" unless @manifest.key?(key.to_sym)
+      raise ArgumentError, "Undefined parameter '#{key}'" unless includes?(key)
       @params[key.to_sym]
     end
 
     def respond_to_missing?(name, *)
-      @manifest.key?(name) || super
+      includes?(name) || super
     end
 
     # def respond_to?(name, *)
@@ -85,7 +94,7 @@ module Nanobase
     # end
 
     def method_missing(name, *)
-      return self[name] if @manifest.key?(name)
+      return self[name] if includes?(name)
       puts "Not a declared parameter: #{name}"
       super
     end
