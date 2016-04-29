@@ -1,4 +1,4 @@
-# Mimi::Config
+# mimi-config
 
 A simple ENV based configuration for microservice applications.
 
