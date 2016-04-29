@@ -51,7 +51,7 @@ req3:
 
 Providing you have placed your manifest into `config/manifest.yml`:
 
-```
+```ruby
 config = Mimi::Config.new('config/manifest.yml')
 
 config.const1 # => 456, from manifest.yml
