@@ -88,18 +88,23 @@ module Mimi
       @params[key.to_sym]
     end
 
-    def respond_to_missing?(name, *)
-      include?(name) || super
-    end
-
-    # def respond_to?(name, *)
-    #   @manifest.key?(name) || super
-    # end
-
+    # Provides access to parameters as methods.
+    #
+    # Example:
+    #   config['foo'] # => 'bar'
+    #   config.foo # => 'bar'
+    #
+    #   # missing parameter
+    #   config['bar'] # => ArgumentError
+    #   config.bar # => NoMethodError
+    #
     def method_missing(name, *)
       return self[name] if include?(name)
-      puts "Not a declared parameter: #{name}"
       super
+    end
+
+    def respond_to_missing?(name, *)
+      include?(name) || super
     end
 
     private
