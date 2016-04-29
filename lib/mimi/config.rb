@@ -15,10 +15,10 @@ module Mimi
     # Current set of values for configurable and const parameters
     attr_reader :params
 
-    DEFAULT_OPTS = {
+    default_options(
       raise_on_missing_params: true,
       use_dotenv: true
-    }.freeze
+    )
 
     # Creates a Config object.
     #
@@ -39,7 +39,7 @@ module Mimi
     # from ENV.
     #
     def load(manifest_filename, opts = {})
-      opts = DEFAULT_OPTS.merge(opts)
+      opts = self.class.module_options.deep_merge(opts)
       manifest_filename = Pathname.new(manifest_filename).expand_path
       load_manifest(manifest_filename, opts)
       load_params(opts)
