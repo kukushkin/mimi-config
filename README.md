@@ -49,7 +49,7 @@ req3:
 
 ### How to load configuration from your app
 
-Providing you placed your manifest into `config/manifest.yml`:
+Providing you have placed your manifest into `config/manifest.yml`:
 
 ```
 config = Mimi::Config.new('config/manifest.yml')
@@ -57,7 +57,18 @@ config = Mimi::Config.new('config/manifest.yml')
 config.const1 # => 456, from manifest.yml
 config.opt1 # value from ENV['opt1'] or default from manifest.yml
 config.req2 # value from ENV['req2']
-config.req5 # => NoMethodError, for any parameter not defined in manifest
+
+# alternatively use [] syntax:
+config.opt2    #
+config[:opt2]  # all three refer to the same configurable parameter
+config['opt2'] #
+
+# you cannot access parameters not defined in the manifest:
+config.req5 # => NoMethodError
+config['req5'] # => ArgumentError
+
+# check, if parameter is defined:
+config.include?('req5') # => false
 ```
 
 ## Development
