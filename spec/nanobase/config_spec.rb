@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe Nanobase::Config do
+describe Mimi::Config do
   it 'has a version number' do
-    expect(Nanobase::Config::VERSION).not_to be nil
+    expect(Mimi::Config::VERSION).not_to be nil
   end
 
   it 'does something useful' do

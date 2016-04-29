@@ -1,4 +1,4 @@
-# Nanobase::Config
+# Mimi::Config
 
 A simple ENV based configuration for microservice applications.
 
@@ -8,7 +8,7 @@ A simple ENV based configuration for microservice applications.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'nanobase-config'
+gem 'mimi-config'
 ```
 
 And then execute:
@@ -17,11 +17,11 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install nanobase-config
+    $ gem install mimi-config
 
 ## Usage
 
-`Nanobase::Config` allows you to define a set of configurable parameters and constants in a *manifest* file with a simple YAML format.
+`Mimi::Config` allows you to define a set of configurable parameters and constants in a *manifest* file with a simple YAML format.
 
 ### Example manifest.yml
 ```yaml,name=manifest.yml
@@ -52,7 +52,7 @@ req3:
 Providing you placed your manifest into `config/manifest.yml`:
 
 ```
-config = Nanobase::Config.new('config/manifest.yml')
+config = Mimi::Config.new('config/manifest.yml')
 
 config.const1 # => 456, from manifest.yml
 config.opt1 # value from ENV['opt1'] or default from manifest.yml
@@ -68,7 +68,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/nanobase-config. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/mimi-config. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License

@@ -1,14 +1,17 @@
 require 'pathname'
 require 'yaml'
 require 'dotenv'
+require 'mimi/core'
 
-module Nanobase
+module Mimi
   #
   # Config stores the manifest and reads and stores configurable parameters from ENV.
   #
   # @see README.md
   #
   class Config
+    include Mimi::Core::Module
+
     # Current set of values for configurable and const parameters
     attr_reader :params
 
@@ -164,6 +167,6 @@ module Nanobase
       end
     end
   end # class Config
-end # module Nanobase
+end # module Mimi
 
 require_relative 'config/version'
