@@ -107,6 +107,23 @@ module Mimi
       include?(name) || super
     end
 
+    # Returns Hash representation of the config.
+    # All Hash keys are Symbol
+    #
+    # @return [Hash]
+    #
+    def to_h
+      @manifest.keys.map do |k|
+        [k, self[k]]
+      end.to_h
+    end
+
+    # Returns to_h.to_s
+    #
+    def to_s
+      to_h.to_s
+    end
+
     private
 
     # Reads manifest file and merges it with the current manifest.
