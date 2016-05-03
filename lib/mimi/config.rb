@@ -4,6 +4,13 @@ require 'dotenv'
 require 'mimi/core'
 
 module Mimi
+  # Returns all loaded modules combined configuration manifest
+  #
+  def self.loaded_modules_manifest
+    loaded_modules.reduce(Mimi::Config::Manifest.new) { |a, e| a.load(e.module_manifest) }
+  end
+
+
   #
   # Config stores the manifest and reads and stores configurable parameters from ENV.
   #
@@ -30,7 +37,7 @@ module Mimi
     # @param manifest_filename [String,nil] path to the manifest.yml or nil to skip loading manifest
     #
     def initialize(manifest_filename = nil, opts = {})
-      @manifest = {}
+      @manifest = Mimi::Config::Manifest.new
       @params = {}
       load(manifest_filename, opts) if manifest_filename
     end
@@ -68,6 +75,12 @@ module Mimi
           default: v[:default]
         }
       end
+    end
+
+    # Returns raw manifest
+    #
+    def manifest_raw
+      @manifest
     end
 
     # Returns true if the config manifest includes the parameter with the given name.
@@ -129,15 +142,7 @@ module Mimi
     # Reads manifest file and merges it with the current manifest.
     #
     def load_manifest(filename, _opts = {})
-      new_manifest = YAML.load(File.read(filename))
-      return manifest unless new_manifest
-      raise 'Invalid manifest file format' unless new_manifest.is_a?(Hash)
-      new_manifest.each do |k, v|
-        merge_manifest_key(k, v)
-      end
-      manifest
-    rescue StandardError => e
-      raise "Failed to load manifest file: #{e}"
+      @manifest.load(filename)
     end
 
     # Reads parameters from the ENV according to the current manifest
@@ -159,36 +164,8 @@ module Mimi
       end
       @params
     end
-
-    def merge_manifest_key(k, v)
-      k = k.to_sym
-      @manifest[k] ||= {}
-      if v.nil?
-        # var:
-      elsif v.is_a?(String)
-        # var: A description
-        @manifest[k][:desc] = v
-      elsif v.is_a?(Hash)
-        merge_manifest_key_hash(k, v)
-      end
-    end
-
-    def merge_manifest_key_hash(k, v)
-      @manifest[k][:desc] = v['desc'] if v.key?('desc')
-
-      if v.key?('const') && v.key?('default')
-        raise "Invalid mix of 'const' and 'default' in parameter definition '#{k}'"
-      end
-
-      if v.key?('default')
-        @manifest[k][:const] = false
-        @manifest[k][:default] = v['default']
-      elsif v.key?('const')
-        @manifest[k][:const] = true
-        @manifest[k][:default] = v['const']
-      end
-    end
   end # class Config
 end # module Mimi
 
 require_relative 'config/version'
+require_relative 'config/manifest'
