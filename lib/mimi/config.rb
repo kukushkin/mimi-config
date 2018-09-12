@@ -22,10 +22,22 @@ module Mimi
     # Current set of values for configurable and const parameters
     attr_reader :params
 
-    default_options(
-      raise_on_missing_params: true,
-      use_dotenv: true
-    )
+    # Mimi::Config module manifest
+    #
+    def self.manifest
+      {
+        config_raise_on_missing_params: {
+          desc: 'Raise error on missing params',
+          default: true,
+          hidden: true
+        },
+        config_use_dotenv: {
+          desc: 'Use Dotenv and load .env file',
+          default: true,
+          hidden: true
+        }
+      }
+    end
 
     # Creates a Config object.
     #
@@ -46,11 +58,11 @@ module Mimi
     # from ENV.
     #
     def load(manifest_filename, opts = {})
-      opts = self.class.module_options.deep_merge(opts)
+      opts = self.class.options.deep_merge(opts)
       manifest_filename = Pathname.new(manifest_filename).expand_path
       load_manifest(manifest_filename, opts)
       load_params(opts)
-      if opts[:raise_on_missing_params] && !missing_params.empty?
+      if opts[:config_raise_on_missing_params] && !missing_params.empty?
         raise "Missing required configurable parameters: #{missing_params.join(', ')}"
       end
       self
@@ -148,7 +160,7 @@ module Mimi
     # Reads parameters from the ENV according to the current manifest
     #
     def load_params(opts = {})
-      Dotenv.load if opts[:use_dotenv]
+      Dotenv.load if opts[:config_use_dotenv]
       manifest.each do |p|
         env_name = p[:name].to_s
         if p[:const]
