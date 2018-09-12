@@ -32,7 +32,7 @@ or as methods:
 ```yaml
 # manifest.yml
 param1:
-  default: 'foobar'
+  default: "foobar"
 ```
 
 ```ruby
