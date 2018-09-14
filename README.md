@@ -189,6 +189,31 @@ config['opt2']  # => ArgumentError
 config.include?(:foobar) # => false
 ```
 
+### Using with Dotenv
+
+When a `Mimi::Config` object is instantiated, the `.env` file is loaded and processed,
+the functionality provided by the `dotenv` gem.
+
+You can choose to disable `dotenv` and `.env` file loading:
+
+```ruby
+require 'mimi/config'
+
+config = Mimi::Config.new('manifest.yml', config_use_dotenv: false)
+```
+
+### Using as Mimi component
+
+It is possible to configure `Mimi::Config` as a Mimi module:
+
+```ruby
+require 'mimi/config'
+
+Mimi.use Mimi::Config, config_use_dotenv: false
+```
+
+After that, any `Mimi::Config` object you instantiate will use provided options as default.
+
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
