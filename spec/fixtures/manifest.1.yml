@@ -1,0 +1,24 @@
+# This is a minimal definition of a configurable parameter.
+# Its type is 'string', there is no human readable description and no default value:
+min1:
+
+# This parameter is optional as it has a default value.
+opt1:
+  desc: This is an optional configurable parameter
+  default: "opt1.default"
+
+# Having no defined default value makes the configurable parameter required
+req1:
+  desc: This is a required configurable parameter
+
+# An optional configurable parameter with a default value of 'nil':
+opt2:
+  default:
+  type: integer
+
+# A constant parameter of type 'string'.
+# It must have a default value and it cannot be changed via ENV variable.
+const1:
+  desc: This is a constant parameter
+  default: "const1.default"
+  const: true

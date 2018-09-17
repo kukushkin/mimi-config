@@ -49,7 +49,7 @@ module Mimi
     # @param manifest_filename [String,nil] path to the manifest.yml or nil to skip loading manifest
     #
     def initialize(manifest_filename = nil, opts = {})
-      @manifest = Mimi::Config::Manifest.new
+      @manifest = Mimi::Core::Manifest.new({})
       @params = {}
       load(manifest_filename, opts) if manifest_filename
     end
@@ -78,15 +78,7 @@ module Mimi
     # Returns annotated manifest
     #
     def manifest
-      @manifest.map do |k, v|
-        {
-          name: k,
-          desc: v[:desc],
-          required: !v.key?(:default),
-          const: v[:const],
-          default: v[:default]
-        }
-      end
+      @manifest.to_h
     end
 
     # Returns raw manifest
@@ -101,16 +93,19 @@ module Mimi
     # via #[] and #<name> methods.
     #
     def include?(name)
-      @manifest.key?(name.to_sym)
+      @manifest.to_h.key?(name.to_sym)
     end
 
     # Returns the parameter value
     #
-    # @param key [String,Symbol] parameter name
+    # @param key [Symbol] parameter name
     #
     def [](key)
+      unless key.is_a?(Symbol)
+        raise ArgumentError, "Invalid key to #[], Symbol expected: '#{key.inspect}'"
+      end
       raise ArgumentError, "Undefined parameter '#{key}'" unless include?(key)
-      @params[key.to_sym]
+      @params[key]
     end
 
     # Provides access to parameters as methods.
@@ -138,7 +133,7 @@ module Mimi
     # @return [Hash]
     #
     def to_h
-      @manifest.keys.map do |k|
+      @manifest.to_h.keys.map do |k|
         [k, self[k]]
       end.to_h
     end
@@ -154,30 +149,32 @@ module Mimi
     # Reads manifest file and merges it with the current manifest.
     #
     def load_manifest(filename, _opts = {})
-      @manifest.load(filename)
+      @manifest.merge!(parse_manifest_file(filename))
+    rescue StandardError => e
+      raise "Failed to load config manifest from '#{filename}': #{e}"
+    end
+
+    # Reads manifest from a given file, and parses it to a standard manifest Hash
+    #
+    # @param filename [String]
+    # @return [Hash]
+    #
+    def parse_manifest_file(filename)
+      manifest_hash = YAML.load(File.read(filename))
+      raise 'Invalid manifest, JSON Object is expected' unless manifest_hash.is_a?(Hash)
+      manifest_hash.map do |k, v|
+        v = (v || {}).symbolize_keys
+        [k.to_sym, v]
+      end.to_h
     end
 
     # Reads parameters from the ENV according to the current manifest
     #
     def load_params(opts = {})
       Dotenv.load if opts[:config_use_dotenv]
-      manifest.each do |p|
-        env_name = p[:name].to_s
-        if p[:const]
-          # const
-          @params[p[:name]] = p[:default]
-        elsif p[:required]
-          # required configurable
-          @params[p[:name]] = ENV[env_name] if ENV.key?(env_name)
-        else
-          # optional configurable
-          @params[p[:name]] = ENV.key?(env_name) ? ENV[env_name] : p[:default]
-        end
-      end
-      @params
+      @params = @manifest.apply(ENV.to_h.symbolize_keys)
     end
   end # class Config
 end # module Mimi
 
 require_relative 'config/version'
-require_relative 'config/manifest'
