@@ -109,10 +109,10 @@ describe Mimi::Config do
       expect(subject).to be_a Mimi::Config
     end
 
-    it 'exposes parsed manifest as Hash' do
+    it 'exposes parsed manifest' do
       expect(subject).to respond_to(:manifest)
-      expect { subject.manifest }.to_not raise_error
-      expect(subject.manifest).to eq manifest_hash_1
+      expect { subject.manifest.to_h }.to_not raise_error
+      expect(subject.manifest.to_h).to eq manifest_hash_1
     end
 
     it { is_expected.to respond_to(:min1) }
@@ -156,6 +156,10 @@ describe Mimi::Config do
 
     it 'does NOT allow accessing parameters as string keys' do
       expect { subject['min1'] }.to raise_error(ArgumentError)
+    end
+
+    it 'raises an error when accessing missing parameter' do
+      expect { subject[:foobar] }.to raise_error(ArgumentError)
     end
   end # #[]
 

@@ -39,6 +39,14 @@ module Mimi
       }
     end
 
+    # Returns the module path, for exported rake files
+    #
+    # @return [Pathname]
+    #
+    def self.module_path
+      Pathname.new(__dir__).join('..', '..').expand_path
+    end
+
     # Creates a Config object.
     #
     # Loads and parses manifest.yml, reads and sets configurable parameters
@@ -60,7 +68,7 @@ module Mimi
     def load(manifest_filename, opts = {})
       opts = self.class.options.deep_merge(opts)
       manifest_filename = Pathname.new(manifest_filename).expand_path
-      load_manifest(manifest_filename, opts)
+      @manifest.merge!(self.class.load_manifest(manifest_filename, opts))
       load_params(opts)
       if opts[:config_raise_on_missing_params] && !missing_params.empty?
         raise "Missing required configurable parameters: #{missing_params.join(', ')}"
@@ -75,15 +83,11 @@ module Mimi
       required_params - @params.keys
     end
 
-    # Returns annotated manifest
+    # Returns the underlying manifest
+    #
+    # @return [Mimi::Core::Manifest]
     #
     def manifest
-      @manifest.to_h
-    end
-
-    # Returns raw manifest
-    #
-    def manifest_raw
       @manifest
     end
 
@@ -111,11 +115,11 @@ module Mimi
     # Provides access to parameters as methods.
     #
     # Example:
-    #   config['foo'] # => 'bar'
+    #   config[:foo] # => 'bar'
     #   config.foo # => 'bar'
     #
     #   # missing parameter
-    #   config['bar'] # => ArgumentError
+    #   config[:bar] # => ArgumentError
     #   config.bar # => NoMethodError
     #
     def method_missing(name, *)
@@ -140,33 +144,25 @@ module Mimi
 
     # Returns to_h.to_s
     #
+    # @return [String]
+    #
     def to_s
       to_h.to_s
     end
 
-    private
-
-    # Reads manifest file and merges it with the current manifest.
+    # Reads and parses the manifest file and constructs the Mimi::Core::Manifest object
     #
-    def load_manifest(filename, _opts = {})
-      @manifest.merge!(parse_manifest_file(filename))
+    # @param filename [Pathname]
+    # @param _opts
+    # @return [Mimi::Core::Manifest]
+    #
+    def self.load_manifest(filename, _opts = {})
+      Mimi::Core::Manifest.from_yaml(File.read(filename))
     rescue StandardError => e
       raise "Failed to load config manifest from '#{filename}': #{e}"
     end
 
-    # Reads manifest from a given file, and parses it to a standard manifest Hash
-    #
-    # @param filename [String]
-    # @return [Hash]
-    #
-    def parse_manifest_file(filename)
-      manifest_hash = YAML.load(File.read(filename))
-      raise 'Invalid manifest, JSON Object is expected' unless manifest_hash.is_a?(Hash)
-      manifest_hash.map do |k, v|
-        v = (v || {}).symbolize_keys
-        [k.to_sym, v]
-      end.to_h
-    end
+    private
 
     # Reads parameters from the ENV according to the current manifest
     #
