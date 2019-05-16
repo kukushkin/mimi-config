@@ -79,7 +79,7 @@ module Mimi
     # Returns list of missing required params
     #
     def missing_params
-      required_params = manifest.select { |p| p[:required] }.map { |p| p[:name] }
+      required_params = manifest.keys.select { |name| manifest.required?(name) }
       required_params - @params.keys
     end
 
